@@ -87,6 +87,13 @@ func createStreamProcessor(triggerObj *kubelessApi.KinesisTrigger, funcName, ns 
 	}
 
 	kc := kinesis.New(s)
+
+	streamOutput, err := kc.DescribeStream(&kinesis.DescribeStreamInput{StreamName: &triggerObj.Spec.Stream})
+	if err != nil {
+		logrus.Errorf("Failed to fetch stream details from Kinesis. Error: %v", err)
+	}
+	logrus.Infof("Stream Output: %v", streamOutput)
+
 	shardIterator, err := getShardIterator(kc, triggerObj.Spec.ShardID, triggerObj.Spec.Stream)
 	if err != nil {
 		logrus.Errorf("Error getting shard iterator necessary to read records from the Kinesis stream %s in region %s. Error: %v", triggerObj.Spec.Stream, triggerObj.Spec.Region, err)
